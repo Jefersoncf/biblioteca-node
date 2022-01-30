@@ -4,10 +4,11 @@ var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 const mongoose = require('mongoose');
+const dotenv = require('dotenv');
 
-const mongoDB = ''
+dotenv.config();
+const mongoDB = process.env.DB;
 mongoose.connect(mongoDB, { useNewUrlParser: true });
-
 const db = mongoose.connection;
 db.on('error', err => console.error(err));
 
