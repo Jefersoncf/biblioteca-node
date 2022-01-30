@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 
-const mongoose = require('mongoose');
+const Schema = mongoose.Schema;
 
 const BookSchema = new Schema(
   {
@@ -13,7 +13,7 @@ const BookSchema = new Schema(
 );
 
 BookSchema.virtual('url').get(() => {
-  return '/catalog/book/'+ this._id;
+  return `/catalog/book/${this._id}`;
 });
 
 module.exports = mongoose.model('Book', BookSchema);

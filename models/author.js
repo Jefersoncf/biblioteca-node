@@ -10,7 +10,7 @@ const AuthorSchema = new Schema({
 });
 
 AuthorSchema.virtual('name').get(() => {
-  return this.family_name +', '+ this.first_name;
+  return `${this.family_name}, ${this.first_name}`;
 });
 
 AuthorSchema.virtual('lifespan').get(() => {
@@ -18,7 +18,7 @@ AuthorSchema.virtual('lifespan').get(() => {
 });
 
 AuthorSchema.virtual('url').get(() => {
-  return '/catalog/author/'+this._id;
+  return `/catalog/author/${this._id}`;
 });
 
 // export 
