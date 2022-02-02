@@ -29,8 +29,15 @@ exports.index = function (req, res) {
 };
 
 //lista todos os Books
-exports.book_list = ((req, res) => {
-  res.send('HELLO with A resource AAAA')
+exports.book_list = ((req, res, next) => {
+  Book.find({}, 'title author')
+    .sort({ title: 1 })
+    .populate('author')
+    .exec((err, list_books) => {
+      if (err) { return next(err); }
+      res.render('book_list', {title: 'Book List', book_list: list_books});
+      // console.log(book_list);
+    });
 });
 
 //detalhes especificos em uma pagina de Books
