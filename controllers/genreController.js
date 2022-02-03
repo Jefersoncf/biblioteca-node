@@ -1,8 +1,14 @@
 const Genre = require('../models/genre');
 
 //lista todos os Genre 
-exports.genre_list = ((req, res) => {
-  res.send('ola, this genreController');
+exports.genre_list = ((req, res, next) => {
+
+  Genre.find()
+  .sort([['name']])
+    .exec((err, genre_list) => {
+      if(err) { return next(err);}
+      res.render('generic_list', {title: 'Genre List', genre_list});
+    });
 });
 
 //Exibir página de detalhes para um gênero específico.
