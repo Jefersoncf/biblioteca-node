@@ -1,8 +1,10 @@
 const Genre = require('../models/genre');
+const mongoose = require('mongoose');
+const Book = require('../models/book');
+const async = require('async');
 
 //lista todos os Genre 
 exports.genre_list = ((req, res, next) => {
-
   Genre.find()
   .sort([['name']])
     .exec((err, genre_list) => {
@@ -12,8 +14,27 @@ exports.genre_list = ((req, res, next) => {
 });
 
 //Exibir página de detalhes para um gênero específico.
-exports.genre_detail = ((req, res) => {
-  res.send('HELLO with A resource AAAA');
+exports.genre_detail = ((req, res, next) => {
+  let id = mongoose.Types.ObjectId(req.params.id);
+  async.parallel({
+    genres: ((callback) => {
+      Genre.findById(req.params.id) 
+        .exec(callback);
+    }),
+    genre_books: ((callback) => {
+      Book.find({ 'genre': req.params.id })
+        .exec(callback);
+    }),
+  }),
+  function (err, results){
+    if (err) { return next(err); }
+    if(results.genre == null) {
+      let err = new Error(err.message);
+      err.status = 404;
+      return next(err);
+    }
+    res.render('genre_detail', {title: 'Genre Detail', genre: results.genre, genre_books: results.genre_books })
+  }
 });
 
 //Exibir formulário de criação de gênero em GET.
