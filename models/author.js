@@ -11,14 +11,27 @@ const AuthorSchema = new Schema({
 });
 
 AuthorSchema.virtual('name').get(() => {
-  return `${this.family_name}, ${this.first_name}`;
+  let fullname = '';
+  if(this.first_name && this.family_name){
+    fullname = this.family_name +', ' +this.first_name;
+  }
+  else if(!this.first_name || !this.family_name){
+    fullname = '';
+  }
+  return fullname;
 });
 
 AuthorSchema.virtual('lifespan').get(() => {
-  return (this.date_of_death.getYear() - this.date_of_birth.getYear()).toString();
+  let lifetime_string = '';
+  if(this.date_of_birth){
+    lifetime_string = this.date_of_birth.getYear().toString();
+  }
+  lifetime_string += ' - ';
+  if(this.date_of_death){
+    lifetime_string += this.date_of_death.getYear();
+  }
+  return lifetime_string;
   // return this.date_of_birth ? DateTime.fromJSDate(this.date_of_birth).toLocaleString(DateTime.DATE_MED) : '';
-
-
 });
 
 AuthorSchema.virtual('url').get(() => {
