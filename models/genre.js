@@ -6,7 +6,7 @@ const  GenreSchema = new Schema({
   name: { type: String, required: true, max: 100},
 });
 
-GenreSchema.virtual('url').get(() => {
+GenreSchema.virtual('url').get(function() {
   return `catalog/genre/${this.name}`;
 })
 

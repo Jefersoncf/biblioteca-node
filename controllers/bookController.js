@@ -34,15 +34,39 @@ exports.book_list = ((req, res, next) => {
     .sort({ title: 1 })
     .populate('author')
     .exec((err, list_books) => {
-      if (err) { return next(err); }
-      res.render('book_list', {title: 'Book List', book_list: list_books});
-      // console.log(book_list);
-    });
+        if (err) { return next(err); }
+        res.render('book_list', { title: 'Book List', book_list: list_books });
+        // console.log(book_list);
+      });
 });
 
 //detalhes especificos em uma pagina de Books
-exports.book_detail = ((req, res) => {
-  res.send('HELLO with A resource AAAA')
+exports.book_detail = ((req, res, next) => {
+  async.parallel({
+    book: ((callback) => {
+      Book.findById(req.params.id)
+        .populate('author')
+        .populate('genre')
+        .exec(callback);
+    }),
+    book_instance: ((callback) => {
+      BookInstance.find({'book': req.params.id})
+        .exec(callback);
+    }),
+  }),
+  function (err, results) {
+    if(err) { return next(err);}
+    if(results.book == null) {
+      let err = new Error('Book not found');
+      err.status = 404;
+      return next(err);
+    }
+    res.render('book_detail', { 
+      title: results.book.title, 
+      book: results.book, 
+      book_instances: results.book_instance,
+    });
+  };
 });
 
 //cria Book em GET

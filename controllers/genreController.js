@@ -1,5 +1,4 @@
 const Genre = require('../models/genre');
-const mongoose = require('mongoose');
 const Book = require('../models/book');
 const async = require('async');
 
@@ -15,9 +14,8 @@ exports.genre_list = ((req, res, next) => {
 
 //Exibir página de detalhes para um gênero específico.
 exports.genre_detail = ((req, res, next) => {
-  let id = mongoose.Types.ObjectId(req.params.id);
   async.parallel({
-    genres: ((callback) => {
+    genre: ((callback) => {
       Genre.findById(req.params.id) 
         .exec(callback);
     }),
@@ -29,11 +27,15 @@ exports.genre_detail = ((req, res, next) => {
   function (err, results){
     if (err) { return next(err); }
     if(results.genre == null) {
-      let err = new Error(err.message);
+      let err = new Error('Book not found');
       err.status = 404;
       return next(err);
     }
-    res.render('genre_detail', {title: 'Genre Detail', genre: results.genre, genre_books: results.genre_books })
+    res.render('genre_detail', {
+      title: 'Genre Detail', 
+      genre: results.genre, 
+      genre_books: results.genre_books 
+    })
   }
 });
 
