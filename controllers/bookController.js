@@ -2,6 +2,7 @@ const Book = require('../models/book');
 const Author = require('../models/author');
 const Genre = require('../models/genre');
 const BookInstance = require('../models/bookinstance');
+const { body, validatorResult } = require('express-validator');
 
 const async = require('async');
 
@@ -71,7 +72,18 @@ exports.book_detail = ((req, res, next) => {
 
 //cria Book em GET
 exports.book_create_get = ((req, res) => {
-  res.send('HELLO with A resource AAAA')
+  async.parallel({
+    authors: function (callback) {
+      Author.find(callback);
+    },
+    genres: function (callback) {
+      Genre.find(callback);
+    },
+  }),
+  function (err, results) {
+    if(err) { return next(err); }
+    res.render('book_form', { title: 'Create Book', authors: results.authors, genres: results.genres });
+  }
 });
 
 //cria Book em POST

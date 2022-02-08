@@ -1,6 +1,11 @@
 const Genre = require('../models/genre');
 const Book = require('../models/book');
 const async = require('async');
+const { body, validatorResult } = require('express-validator');
+
+// validator = require('express-validator');
+// body = validator.body();
+// validatorResult = validator.validatorResult();
 
 //lista todos os Genre 
 exports.genre_list = ((req, res, next) => {
@@ -40,14 +45,42 @@ exports.genre_detail = ((req, res, next) => {
 });
 
 //Exibir formulário de criação de gênero em GET.
-exports.genre_create_get = ((req, res) => {
-  res.send('ola with');
+exports.genre_create_get = ((req, res, next) => {
+  res.render('genre_form', {title: 'Create Genre'});
 });
 
 //Lidar com a criação de gênero no POST
-exports.genre_create_post = ((req, res) => {
-  res.send('HELLO with A resource AAAA');
-});
+exports.genre_create_post = [
+  body('name', 'Genre name required')
+    .trim()
+    .isLength({min: 1})
+    .escape(), (req, res, next) => {
+      const errors = validatorResult(req); 
+
+      let genre = new Genre(
+        {
+          name: req.body.name
+        }
+      );
+      if(!errors.isEmpty()) {
+        res.render('genre_form', {title: 'Create Genre', genre: genre, errors: errors.array()});
+        return;
+      }else {
+        Genre.findOne({'name': req.body.name})
+          .exec(function(err, found_genre) {
+            if(err) { return next(err);}
+            if(found_genre) {
+              res.redirect(found_genre.url);
+            }else {
+              genre.save( function (err) {
+                if(err) { return next(err);}
+                res.redirect(genre.url);
+              });
+            }
+          });
+      }
+    }
+];
 
 //exibe exclusão de Genre em GET.
 exports.genre_delete_get = ((req, res) => {
