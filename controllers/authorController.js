@@ -1,7 +1,7 @@
 const Author = require('../models/author');
 const async = require('async');
 const Book = require('../models/book');
-const { body, validatorResult } = require('express-validator');
+const { body, validationResult } = require('express-validator');
 
 //mostra uma lista com todos os autores 
 exports.author_list = ((req, res, next) => {
@@ -58,7 +58,7 @@ exports.author_create_post = [
   body('date_of_death', 'Invalid date of death').optional({checkFalsy: true}).isISO8601().toDate(),
 
   (req, res, next) => {
-    const errors = validatorResult(req);
+    const errors = validationResult(req);
     if(!errors.isEmpty()) {
       res.render('author_form', {title: 'Create Author', author: req.body, errors: errors.array()});
       return;

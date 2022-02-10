@@ -1,8 +1,8 @@
+const { body, validationResult } = require('express-validator');
 const Book = require('../models/book');
 const Author = require('../models/author');
 const Genre = require('../models/genre');
 const BookInstance = require('../models/bookinstance');
-const { body, validatorResult } = require('express-validator');
 
 const async = require('async');
 
@@ -71,7 +71,7 @@ exports.book_detail = ((req, res, next) => {
 });
 
 //cria Book em GET
-exports.book_create_get = ((req, res) => {
+exports.book_create_get = function (req, res, next) {
   async.parallel({
     authors: function (callback) {
       Author.find(callback);
@@ -80,26 +80,21 @@ exports.book_create_get = ((req, res) => {
       Genre.find(callback);
     },
   }),
-  function (err, results) {
-    if(err) { return next(err); }
-    res.render('book_form', {
-       title: 'Create Book', 
-       authors: results.authors, 
-       genres: results.genres 
-      });
-  }
-});
+    function (err, results) {
+      if (err) { return next(err); }
+      res.render('book_form', { title: 'Create Book', authors: results.authors, genres: results.genres });
+    };
+};
 
 //cria Book em POST
-exports.book_create_post = [
-  (req, res, next) => {
-    if(!(req.body.genre instanceof Array)){
-      if(typeof req.body.genre === 'undefined')
-      req.body.genre = [];
-      else 
-      req.body.gere = new Array(req.body.genre);
-    }
-    next();
+exports.book_create_post = [(req, res, next) => {
+  if(!(req.body.genre instanceof Array)){
+    if(typeof req.body.genre === 'undefined')
+    req.body.genre = [];
+    else 
+    req.body.genre = new Array(req.body.genre);
+  }
+  next();
   },
 
   //validate and sanitize fields
@@ -111,7 +106,7 @@ exports.book_create_post = [
 
   (req, res, next) => {
 
-    const errors = validatorResult(req);
+    const errors = validationResult(req);
 
     let book = new Book(
       { title: req.body.title, 
@@ -126,14 +121,14 @@ exports.book_create_post = [
 
       //Get all authors and genres for form 
       async.parallel({
-        authors: function (callback) {
+        authors: function(callback) {
           Author.find(callback);
         },
-        genres: function (callback) {
+        genres: function(callback) {
           Genre.find(callback);
         },
       },
-      function (err, results) {
+      function(err, results) {
         if(err) { return next(err); }
         //Mark our selected genres as checked
         for(let i = 0; i < results.genres.length; i++){
